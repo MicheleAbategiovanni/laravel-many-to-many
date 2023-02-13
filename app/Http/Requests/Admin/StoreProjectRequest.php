@@ -28,6 +28,7 @@ class StoreProjectRequest extends FormRequest
             "description" => "required|string",
             "thumb" => "required|image|max:1024",
             "github_link" => "string|url",
+            "technologies" => "nullable|array|exists:technologies,id"
         ];
     }
 }

@@ -23,7 +23,8 @@
                 <i class="bi bi-pencil-square"></i>
             </a>
 
-            <form action="{{ route('admin.projects.destroy', $project->id) }}" method="POST" class="delete-comic d-inline-block">
+            <form action="{{ route('admin.projects.destroy', $project->id) }}" method="POST"
+                class="delete-comic d-inline-block">
                 @csrf()
                 @method('delete')
 
@@ -64,7 +65,13 @@
 
     <p class="lead py-3"> {{ $project->description }}</p>
 
-    <p>Category: {{ $project->type->title  }}</p>
+    {{-- @dump($project->technologies) --}}
+
+    <div>Tecnologie:
+        @foreach ($project->technologies as $technology)
+        <span class="badge text-bg-secondary">{{ $technology->title }}</span>
+        @endforeach
+    </div>
 
 
 

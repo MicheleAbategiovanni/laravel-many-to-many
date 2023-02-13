@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreProjectRequest;
 use App\Models\Project;
+use App\Models\Technology;
 use App\Models\Type;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -31,8 +32,9 @@ class ProjectController extends Controller
      */
     public function create()
     {
+        $technologies = Technology::all();
 
-        return view("admin.projects.create");
+        return view("admin.projects.create", compact('technologies'));
     }
 
     /**
@@ -45,24 +47,21 @@ class ProjectController extends Controller
     {
         // $data = $request->validated();
 
-        $data = $request->validate([
-            "title" => "required|min:10|max:255",
-            "description" => "required|string",
-            "thumb" => "required|image|max:1024",
-            "github_link" => "string|url",
-        ]);
+        $data = $request->validated();
 
         if (key_exists("thumb", $data)) {
 
             $path = Storage::put("projects", $data["thumb"]);
-
         }
 
         $project = Project::create([
-             ...$data,
-             "thumb" => $path ?? '',
-         ]);
+            ...$data,
+            "thumb" => $path ?? '',
+        ]);
 
+        if ($request->has("technologies")) {
+            $project->technologies()->attach($data["technologies"]);
+        }
 
         return redirect()->route("admin.projects.show", $project->id);
     }
@@ -88,7 +87,9 @@ class ProjectController extends Controller
     {
         $project = Project::findOrFail($id);
 
-        return view("admin.projects.edit", compact("project"));
+        $technologies = Technology::all();
+
+        return view("admin.projects.edit", compact("project", "technologies"));
     }
 
     /**
@@ -103,6 +104,14 @@ class ProjectController extends Controller
         $project = Project::findOrFail($id);
         $data = $request->all();
 
+        $data = $request->validate([
+            "title" => "required|min:10|max:255",
+            "description" => "required|string",
+            "thumb" => "image|max:1024",
+            "github_link" => "string|url",
+            "technologies" => "nullable|array|exists:technologies,id"
+        ]);
+
         if (key_exists("thumb", $data)) {
 
             $path = Storage::put("projects", $data["thumb"]);
@@ -114,6 +123,8 @@ class ProjectController extends Controller
             ...$data,
             "thumb" => $path ?? $project->thumb
         ]);
+
+        $project->technologies()->sync($data["technologies"]);
 
         return redirect()->route("admin.projects.show", compact("project"));
     }
@@ -132,6 +143,11 @@ class ProjectController extends Controller
             Storage::delete($project->thumb);
         }
 
+        $project->technologies()->detach();
+
         $project->delete();
+
+        return redirect()->route("admin.projects.index");
+
     }
 }
