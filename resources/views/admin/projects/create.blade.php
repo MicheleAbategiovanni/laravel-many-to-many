@@ -43,22 +43,11 @@
         'inputName' => 'github_link',
         ])
 
-
-        <div class="mb-3">
-            <label class="form-label">Tipo:</label>
-            <select class="form-select @error('type_id') is-invalid @enderror" name="type_id">
-                <option></option>
-                {{-- Per ogni elemento all'interno di $categories, stampo una option --}}
-                @foreach ($types as $type)
-                <option value={{ $type->id }}>{{ $type->title }}</option>
-                @endforeach
-            </select>
-            @error('type_id')
-            <div class="invalid-feedback">
-                {{ $message }}
-            </div>
-            @enderror
-        </div>
+        @include('components.form-input', [
+        'label' => "Tecnologie",
+        'inputName' => 'technologies',
+        'type'=> 'checkbox'
+        ])
 
         <button class="btn btn-primary" type="submit">Salva prodotto</button>
     </form>

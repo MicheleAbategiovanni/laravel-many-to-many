@@ -19,6 +19,7 @@ return new class extends Migration
             $table->longText('description')->nullable();
             $table->string('thumb');
             $table->string('github_link');
+            $table->timestamps();
         });
     }
 
